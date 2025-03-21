@@ -1,0 +1,431 @@
+Small but complete example of using PydanticAI to build a support agent for a bank.
+
+Demonstrates:
+
+* [dynamic system prompt](../agents.md#system-prompts)
+* [structured `result_type`](../results.md#structured-result-validation)
+* [tools](../tools.md)
+
+## Running the Example
+
+With [dependencies installed and environment variables set](./index.md#usage), run:
+
+```bash
+python/uv-run -m pydantic_ai_examples.bank_support
+```
+
+(or `PYDANTIC_AI_MODEL=gemini-1.5-flash ...`)
+
+## Example Code
+
+```python {title="bank_support.py"}
+#! examples/pydantic_ai_examples/bank_support.py
+```
+# Chat App with FastAPI
+
+Simple chat app example build with FastAPI.
+
+Demonstrates:
+
+* [reusing chat history](../message-history.md)
+* [serializing messages](../message-history.md#accessing-messages-from-results)
+* [streaming responses](../results.md#streamed-results)
+
+This demonstrates storing chat history between requests and using it to give the model context for new responses.
+
+Most of the complex logic here is between `chat_app.py` which streams the response to the browser,
+and `chat_app.ts` which renders messages in the browser.
+
+## Running the Example
+
+With [dependencies installed and environment variables set](./index.md#usage), run:
+
+```bash
+python/uv-run -m pydantic_ai_examples.chat_app
+```
+
+Then open the app at [localhost:8000](http://localhost:8000).
+
+![Example conversation](../img/chat-app-example.png)
+
+## Example Code
+
+Python code that runs the chat app:
+
+```python {title="chat_app.py"}
+#! examples/pydantic_ai_examples/chat_app.py
+```
+
+Simple HTML page to render the app:
+
+```html {title="chat_app.html"}
+#! examples/pydantic_ai_examples/chat_app.html
+```
+
+TypeScript to handle rendering the messages, to keep this simple (and at the risk of offending frontend developers) the typescript code is passed to the browser as plain text and transpiled in the browser.
+
+```ts {title="chat_app.ts"}
+#! examples/pydantic_ai_examples/chat_app.ts
+```
+Example of a multi-agent flow where one agent delegates work to another, then hands off control to a third agent.
+
+Demonstrates:
+
+* [agent delegation](../multi-agent-applications.md#agent-delegation)
+* [programmatic agent hand-off](../multi-agent-applications.md#programmatic-agent-hand-off)
+* [usage limits](../agents.md#usage-limits)
+
+In this scenario, a group of agents work together to find the best flight for a user.
+
+The control flow for this example can be summarised as follows:
+
+```mermaid
+graph TD
+  START --> search_agent("search agent")
+  search_agent --> extraction_agent("extraction agent")
+  extraction_agent --> search_agent
+  search_agent --> human_confirm("human confirm")
+  human_confirm --> search_agent
+  search_agent --> FAILED
+  human_confirm --> find_seat_function("find seat function")
+  find_seat_function --> human_seat_choice("human seat choice")
+  human_seat_choice --> find_seat_agent("find seat agent")
+  find_seat_agent --> find_seat_function
+  find_seat_function --> buy_flights("buy flights")
+  buy_flights --> SUCCESS
+```
+
+## Running the Example
+
+With [dependencies installed and environment variables set](./index.md#usage), run:
+
+```bash
+python/uv-run -m pydantic_ai_examples.flight_booking
+```
+
+## Example Code
+
+```python {title="flight_booking.py"}
+#! examples/pydantic_ai_examples/flight_booking.py
+```
+# Examples
+
+Examples of how to use PydanticAI and what it can do.
+
+## Usage
+
+These examples are distributed with `pydantic-ai` so you can run them either by cloning the [pydantic-ai repo](https://github.com/pydantic/pydantic-ai) or by simply installing `pydantic-ai` from PyPI with `pip` or `uv`.
+
+### Installing required dependencies
+
+Either way you'll need to install extra dependencies to run some examples, you just need to install the `examples` optional dependency group.
+
+If you've installed `pydantic-ai` via pip/uv, you can install the extra dependencies with:
+
+```bash
+pip/uv-add "pydantic-ai[examples]"
+```
+
+If you clone the repo, you should instead use `uv sync --extra examples` to install extra dependencies.
+
+### Setting model environment variables
+
+These examples will need you to set up authentication with one or more of the LLMs, see the [model configuration](../models.md) docs for details on how to do this.
+
+TL;DR: in most cases you'll need to set one of the following environment variables:
+
+=== "OpenAI"
+
+    ```bash
+    export OPENAI_API_KEY=your-api-key
+    ```
+
+=== "Google Gemini"
+
+    ```bash
+    export GEMINI_API_KEY=your-api-key
+    ```
+
+### Running Examples
+
+To run the examples (this will work whether you installed `pydantic_ai`, or cloned the repo), run:
+
+```bash
+python/uv-run -m pydantic_ai_examples.<example_module_name>
+```
+
+For examples, to run the very simple [`pydantic_model`](./pydantic-model.md) example:
+
+```bash
+python/uv-run -m pydantic_ai_examples.pydantic_model
+```
+
+If you like one-liners and you're using uv, you can run a pydantic-ai example with zero setup:
+
+```bash
+OPENAI_API_KEY='your-api-key' \
+  uv run --with "pydantic-ai[examples]" \
+  -m pydantic_ai_examples.pydantic_model
+```
+
+---
+
+You'll probably want to edit examples in addition to just running them. You can copy the examples to a new directory with:
+
+```bash
+python/uv-run -m pydantic_ai_examples --copy-to examples/
+```
+# Pydantic Model
+
+Simple example of using PydanticAI to construct a Pydantic model from a text input.
+
+Demonstrates:
+
+* [structured `result_type`](../results.md#structured-result-validation)
+
+## Running the Example
+
+With [dependencies installed and environment variables set](./index.md#usage), run:
+
+```bash
+python/uv-run -m pydantic_ai_examples.pydantic_model
+```
+
+This examples uses `openai:gpt-4o` by default, but it works well with other models, e.g. you can run it
+with Gemini using:
+
+```bash
+PYDANTIC_AI_MODEL=gemini-1.5-pro python/uv-run -m pydantic_ai_examples.pydantic_model
+```
+
+(or `PYDANTIC_AI_MODEL=gemini-1.5-flash ...`)
+
+## Example Code
+
+```python {title="pydantic_model.py"}
+#! examples/pydantic_ai_examples/pydantic_model.py
+```
+# Question Graph
+
+Example of a graph for asking and evaluating questions.
+
+Demonstrates:
+
+* [`pydantic_graph`](../graph.md)
+
+## Running the Example
+
+With [dependencies installed and environment variables set](./index.md#usage), run:
+
+```bash
+python/uv-run -m pydantic_ai_examples.question_graph
+```
+
+## Example Code
+
+```python {title="question_graph.py"}
+#! examples/pydantic_ai_examples/question_graph.py
+```
+
+The mermaid diagram generated in this example looks like this:
+
+```mermaid
+---
+title: question_graph
+---
+stateDiagram-v2
+  [*] --> Ask
+  Ask --> Answer: ask the question
+  Answer --> Evaluate: answer the question
+  Evaluate --> Congratulate
+  Evaluate --> Castigate
+  Congratulate --> [*]: success
+  Castigate --> Ask: try again
+```
+# RAG
+
+RAG search example. This demo allows you to ask question of the [logfire](https://pydantic.dev/logfire) documentation.
+
+Demonstrates:
+
+* [tools](../tools.md)
+* [agent dependencies](../dependencies.md)
+* RAG search
+
+This is done by creating a database containing each section of the markdown documentation, then registering
+the search tool with the PydanticAI agent.
+
+Logic for extracting sections from markdown files and a JSON file with that data is available in
+[this gist](https://gist.github.com/samuelcolvin/4b5bb9bb163b1122ff17e29e48c10992).
+
+[PostgreSQL with pgvector](https://github.com/pgvector/pgvector) is used as the search database, the easiest way to download and run pgvector is using Docker:
+
+```bash
+mkdir postgres-data
+docker run --rm \
+  -e POSTGRES_PASSWORD=postgres \
+  -p 54320:5432 \
+  -v `pwd`/postgres-data:/var/lib/postgresql/data \
+  pgvector/pgvector:pg17
+```
+
+As with the [SQL gen](./sql-gen.md) example, we run postgres on port `54320` to avoid conflicts with any other postgres instances you may have running.
+We also mount the PostgreSQL `data` directory locally to persist the data if you need to stop and restart the container.
+
+With that running and [dependencies installed and environment variables set](./index.md#usage), we can build the search database with (**WARNING**: this requires the `OPENAI_API_KEY` env variable and will calling the OpenAI embedding API around 300 times to generate embeddings for each section of the documentation):
+
+```bash
+python/uv-run -m pydantic_ai_examples.rag build
+```
+
+(Note building the database doesn't use PydanticAI right now, instead it uses the OpenAI SDK directly.)
+
+You can then ask the agent a question with:
+
+```bash
+python/uv-run -m pydantic_ai_examples.rag search "How do I configure logfire to work with FastAPI?"
+```
+
+## Example Code
+
+```python {title="rag.py"}
+#! examples/pydantic_ai_examples/rag.py
+```
+# SQL Generation
+
+Example demonstrating how to use PydanticAI to generate SQL queries based on user input.
+
+Demonstrates:
+
+* [dynamic system prompt](../agents.md#system-prompts)
+* [structured `result_type`](../results.md#structured-result-validation)
+* [result validation](../results.md#result-validators-functions)
+* [agent dependencies](../dependencies.md)
+
+## Running the Example
+
+The resulting SQL is validated by running it as an `EXPLAIN` query on PostgreSQL. To run the example, you first need to run PostgreSQL, e.g. via Docker:
+
+```bash
+docker run --rm -e POSTGRES_PASSWORD=postgres -p 54320:5432 postgres
+```
+_(we run postgres on port `54320` to avoid conflicts with any other postgres instances you may have running)_
+
+With [dependencies installed and environment variables set](./index.md#usage), run:
+
+```bash
+python/uv-run -m pydantic_ai_examples.sql_gen
+```
+
+or to use a custom prompt:
+
+```bash
+python/uv-run -m pydantic_ai_examples.sql_gen "find me errors"
+```
+
+This model uses `gemini-1.5-flash` by default since Gemini is good at single shot queries of this kind.
+
+## Example Code
+
+```python {title="sql_gen.py"}
+#! examples/pydantic_ai_examples/sql_gen.py
+```
+This example shows how to stream markdown from an agent, using the [`rich`](https://github.com/Textualize/rich) library to highlight the output in the terminal.
+
+It'll run the example with both OpenAI and Google Gemini models if the required environment variables are set.
+
+Demonstrates:
+
+* [streaming text responses](../results.md#streaming-text)
+
+## Running the Example
+
+With [dependencies installed and environment variables set](./index.md#usage), run:
+
+```bash
+python/uv-run -m pydantic_ai_examples.stream_markdown
+```
+
+## Example Code
+
+```python
+#! examples/pydantic_ai_examples/stream_markdown.py
+```
+Information about whales — an example of streamed structured response validation.
+
+Demonstrates:
+
+* [streaming structured responses](../results.md#streaming-structured-responses)
+
+This script streams structured responses from GPT-4 about whales, validates the data
+and displays it as a dynamic table using [`rich`](https://github.com/Textualize/rich) as the data is received.
+
+## Running the Example
+
+With [dependencies installed and environment variables set](./index.md#usage), run:
+
+```bash
+python/uv-run -m pydantic_ai_examples.stream_whales
+```
+
+Should give an output like this:
+
+{{ video('53dd5e7664c20ae90ed90ae42f606bf3', 25) }}
+
+## Example Code
+
+```python {title="stream_whales.py"}
+#! examples/pydantic_ai_examples/stream_whales.py
+```
+Example of PydanticAI with multiple tools which the LLM needs to call in turn to answer a question.
+
+Demonstrates:
+
+* [tools](../tools.md)
+* [agent dependencies](../dependencies.md)
+* [streaming text responses](../results.md#streaming-text)
+* Building a [Gradio](https://www.gradio.app/) UI for the agent
+
+In this case the idea is a "weather" agent — the user can ask for the weather in multiple locations,
+the agent will use the `get_lat_lng` tool to get the latitude and longitude of the locations, then use
+the `get_weather` tool to get the weather for those locations.
+
+## Running the Example
+
+To run this example properly, you might want to add two extra API keys **(Note if either key is missing, the code will fall back to dummy data, so they're not required)**:
+
+* A weather API key from [tomorrow.io](https://www.tomorrow.io/weather-api/) set via `WEATHER_API_KEY`
+* A geocoding API key from [geocode.maps.co](https://geocode.maps.co/) set via `GEO_API_KEY`
+
+With [dependencies installed and environment variables set](./index.md#usage), run:
+
+```bash
+python/uv-run -m pydantic_ai_examples.weather_agent
+```
+
+## Example Code
+
+```python {title="pydantic_ai_examples/weather_agent.py"}
+#! examples/pydantic_ai_examples/weather_agent.py
+```
+
+## Running the UI
+
+You can build multi-turn chat applications for your agent with [Gradio](https://www.gradio.app/), a framework for building AI web applications entirely in python. Gradio comes with built-in chat components and agent support so the entire UI will be implemented in a single python file!
+
+Here's what the UI looks like for the weather agent:
+
+{{ video('c549d8d8827ded15f326f998e428e6c3', 6) }}
+
+Note, to run the UI, you'll need Python 3.10+.
+
+```bash
+pip install gradio>=5.9.0
+python/uv-run -m pydantic_ai_examples.weather_agent_gradio
+```
+
+## UI Code
+
+```python {title="pydantic_ai_examples/weather_agent_gradio.py"}
+#! examples/pydantic_ai_examples/weather_agent_gradio.py
+```
